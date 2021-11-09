@@ -11,6 +11,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 import { motion } from 'framer-motion';
 import { TodoItem, useTodoItems } from './TodoItemsContext';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { ContactSupportOutlined } from '@material-ui/icons';
 
 const spring = {
     type: 'spring',
@@ -26,12 +28,13 @@ const useTodoItemListStyles = makeStyles({
     },
 });
 
+
 export const TodoItemsList = function () {
     const { todoItems } = useTodoItems();
 
     const classes = useTodoItemListStyles();
 
-    const sortedItems = todoItems.slice().sort((a, b) => {
+    let sortedItems = todoItems.slice().sort((a, b) => {
         if (a.done && !b.done) {
             return 1;
         }
@@ -43,14 +46,37 @@ export const TodoItemsList = function () {
         return 0;
     });
 
+    const handleOnDragEnd = (result: DropResult) => {
+        if(!result.destination) return;
+        const items = Array.from(todoItems);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+        
+        localStorage.setItem('todoListState', JSON.stringify({"todoItems": items}))
+        sortedItems = items;
+    }
+
+
+
     return (
-        <ul className={classes.root}>
-            {sortedItems.map((item) => (
-                <motion.li key={item.id} transition={spring} layout={true}>
-                    <TodoItemCard item={item} />
-                </motion.li>
-            ))}
-        </ul>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+            <Droppable droppableId="todolist">
+                {(provided) =>(
+                <ul className={classes.root} {...provided.droppableProps} ref={provided.innerRef}>
+                    {sortedItems.map((item, index) => (
+                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided) => (
+                                <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                                <TodoItemCard item={item} />
+                                </li>
+                            )}
+                        </Draggable>  
+                    ))}
+                    {provided.placeholder}
+                </ul>
+                )}
+            </Droppable>
+        </DragDropContext>
     );
 };
 
@@ -116,6 +142,6 @@ export const TodoItemCard = function ({ item }: { item: TodoItem }) {
                     </Typography>
                 </CardContent>
             ) : null}
-        </Card>
+        </Card>   
     );
 };

@@ -7,6 +7,7 @@ import { TodoItemsList } from './TodoItems';
 import { TodoItemsContextProvider } from './TodoItemsContext';
 import TodoItemForm from './TodoItemForm';
 
+
 const theme = createMuiTheme({
     palette: {
         primary: {
@@ -38,7 +39,7 @@ function Content() {
             </header>
             <main>
                 <TodoItemForm />
-                <TodoItemsList />
+                  <TodoItemsList />
             </main>
         </Container>
     );

@@ -11,6 +11,7 @@ export interface TodoItem {
     title: string;
     details?: string;
     done: boolean;
+    index: number;
 }
 
 interface TodoItemsState {
@@ -78,7 +79,7 @@ function todoItemsReducer(state: TodoItemsState, action: TodoItemsAction) {
             return {
                 ...state,
                 todoItems: [
-                    { id: generateId(), done: false, ...action.data.todoItem },
+                    { id: generateId(), done: false,  ...action.data.todoItem },
                     ...state.todoItems,
                 ],
             };
@@ -113,3 +114,5 @@ function generateId() {
         Math.random() * 1e16,
     ).toString(36)}`;
 }
+
+
